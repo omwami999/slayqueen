@@ -1,0 +1,25 @@
+name: Deploy FastAPI App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t my-fastapi-app .
+
+      - name: Run Tests
+        run: docker run --rm my-fastapi-app pytest  # (If you have tests)
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker Image
+        run: docker tag my-fastapi-app my-dockerhub-username/my-fastapi-app:latest && docker push my-dockerhub-username/my-fastapi-app:latest
